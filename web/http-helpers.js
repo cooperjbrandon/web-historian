@@ -1,5 +1,7 @@
 var path = require('path');
 var fs = require('fs');
+var qs = require('querystring');
+var rq = require('./request-handler');
 
 exports.headers = headers = {
   "access-control-allow-origin": "*",
@@ -12,6 +14,16 @@ exports.headers = headers = {
 exports.serveStaticAssets = function(res, folder, asset) {
   //Write some code here that helps serve up your static files!
   //(Static files are things like html (yours or arhived from others...), css, or anything that doesn't change often.)
+};
+exports.getData = function(req){
+  var url = "";
+  req.on('data', function(data, err) {
+    if (err) { throw err; }
+      url += data;
+  });
+  req.on('end', function(){
+    fs.appendFile(rq.datadir, qs.parse(url).url);
+  });
 };
 
 // As you go through, keep thinking about what helper functions you can put here!
