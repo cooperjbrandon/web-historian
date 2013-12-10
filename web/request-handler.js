@@ -26,12 +26,12 @@ module.exports.handleRequest = function (req, res) {
     }else if ( ext === '.html' || ext === '.css' || ext === '.js' || ext === '.jpg'){
       folder = './public/';
     } else if (ext === ""){
-      if (req.url === "/newsites"){
-        halp.getNewSites(res);
-      } else {
-        res.writeHead(404, halp.headers);
-        res.end();
-      }
+        if (req.url === "/newsites"){
+          halp.getNewSites(res);
+        } else {
+          res.writeHead(404, halp.headers);
+          res.end();
+        }
       return;
     }else {
       folder = "../data/sites/";
