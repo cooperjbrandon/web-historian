@@ -4,7 +4,39 @@
   <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
-  <form method="POST" action="http://127.0.0.1:8080">
+  <script src = "http://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script>
+  $( document ).ready(function() {
+    // $('.submitSite').on('click', function(e) {
+    //   var siteName = $('.inputSite').val();
+    // $.ajax({
+    //   url: "/",
+    //   type: 'POST',
+    //   data: {url: siteName},
+    //   success: function() {
+    //     $('body').prepend(siteName);
+    //   }
+    // });
+    // });
+    $.ajax({
+      url: "/newsites",
+      type: 'GET',
+      success: function(data) {
+        data = JSON.parse(data);
+        var len = (data.lenth > 10 ) ? 10 : data.length;
+        for (var i = 0 ; i < len ; i++){
+        var link = $('<a>').attr('href', '/' + data[i]);
+        var div = $('<div>').text(data[i]);
+        div.addClass("siteName");
+        link.append(div);
+        $('body').prepend(link);
+        }
+        $('body').prepend('<div class = "siteHeader">10 Newest Sites</div>');
+      }
+    });
+});
+  </script>
+  <form method="POST" action="/">
     <input type="input" name="url"></input>
   </form>
 </body>

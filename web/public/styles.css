@@ -1,4 +1,12 @@
 body {
-  margin : 0px;
+  margin : 1px;
   font-family: arial, sans-serif;
+}
+.siteHeader {
+  font-size : 18px;
+  font-weight: 600;
+}
+.siteName {
+  font-size: 14px;
+  font-weight: 500;
 }

@@ -1,2 +1,13 @@
 www.google.com
 www.yahoo.com
+www.microsoft.com
+www.ebay.com
+www.apple.com
+www.testes.com
+<script>console.log('hacked')</script>
+www.chilis.com
+www.chilis.com
+we should stop people from submitting non websites
+we should stop people from submitting non websites
+what now
+www.latestsite.com

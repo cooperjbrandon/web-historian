@@ -31,3 +31,27 @@ exports.writeData = function(data){
 };
 
 // As you go through, keep thinking about what helper functions you can put here!
+exports.checkReadWrite = function(res, folder, asset) {
+  var html = '';
+  fs.readFile(folder + qs.parse(asset).url, 'utf8', function(err, data) {
+    html += data;
+    if (err){
+      exports.writeData(asset);
+      res.writeHead(302, headers);
+      exports.serveStaticAssets(res, path.join(__dirname, "./public/"), "index.html");
+    } else{
+      res.writeHead(200, headers);
+      res.end(html);
+    }
+  });
+};
+
+exports.getNewSites = function(res){
+  fs.readFile(path.join(__dirname,"../data/") + "sites.txt", function(err, data) {
+    if (err) { throw err ;}
+    data = data + "";
+    var urls = data.split("\n");
+    res.writeHead(200, headers);
+    res.end(JSON.stringify(urls));
+  });
+};

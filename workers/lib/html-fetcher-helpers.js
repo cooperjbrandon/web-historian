@@ -14,12 +14,13 @@ exports.readUrls = function(filePath, cb){
 };
 
 exports.downloadUrls = function(urls){
-  for (var i = 0 ; i < urls.length ; i++){
+  for (var i = 0 ; i < urls.length - 1 ; i++){
     exports.fetchSite(urls[i]);
   }
 };
 
 exports.fetchSite = function(url){
+  console.log('->' + url);
   http.get(url, function (err, res) {
     console.log(dir+url);
     fs.writeFile(dir + url, res.buffer + "",'utf8');

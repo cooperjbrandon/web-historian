@@ -13,19 +13,27 @@ module.exports.handleRequest = function (req, res) {
       url += data;
     });
     req.on('end', function(){
-      halp.writeData(url);
-      res.writeHead(302, halp.headers);
-      res.end();
+      console.log('url');
+      halp.checkReadWrite(res, path.join(__dirname, "../data/sites/"), url);
     });
   } else if (req.method === 'GET') {
     var ext = path.extname(req.url);
+    console.log(req.url);
     var folder = "";
     if (req.url === '/') {
       folder = './public/';
       req.url = 'index.html';
     }else if ( ext === '.html' || ext === '.css' || ext === '.js' || ext === '.jpg'){
       folder = './public/';
-    } else{
+    } else if (ext === ""){
+      if (req.url === "/newsites"){
+        halp.getNewSites(res);
+      } else {
+        res.writeHead(404, halp.headers);
+        res.end();
+      }
+      return;
+    }else {
       folder = "../data/sites/";
     }
     halp.serveStaticAssets(res, path.join(__dirname, folder),  req.url);
