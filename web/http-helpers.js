@@ -11,6 +11,11 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+var contentType = {
+  ".css" : "text/css",
+  ".html" : "text/html",
+  ".js" : "text/javascript"
+};
 
 exports.headers = headers = {
   "access-control-allow-origin": "*",
@@ -23,12 +28,14 @@ exports.serveStaticAssets = function(res, folder, asset) {
   //Write some code here that helps serve up your static files!
   //(Static files are things like html (yours or arhived from others...), css, or anything that doesn't change often.)
   var html = '';
+  var ext = path.extname(asset);
   fs.readFile(folder + asset, 'utf8', function(err, data) {
     html += data;
+    var head = contentType[ext] || headers;
     if (err){
-      res.writeHead(404, headers);
+      res.writeHead(404, head);
     } else{
-      res.writeHead(200, headers);
+      res.writeHead(200, head);
     }
     res.end(html);
   });
@@ -42,7 +49,6 @@ exports.writeData = function(url){
 // As you go through, keep thinking about what helper functions you can put here!
 exports.findSite = function(url, res, responseCodes) {
   var html = '';
-  console.log(connection.escape(url));
   connection.query('select * from archive.runList WHERE url = ' + connection.escape(url), function(err,rows){
     if (err || !rows[0]){
       console.log(rows);
@@ -65,7 +71,7 @@ exports.findSite = function(url, res, responseCodes) {
 };
 
 exports.getFromDB = function(req, res) {
-  exports.findSite(req.url, res, [200, 404]);
+  exports.findSite(req.url.slice(1), res, [200, 404]);
 };
 
 
