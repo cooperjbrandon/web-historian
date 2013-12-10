@@ -7,10 +7,27 @@ module.exports.datadir = path.join(__dirname, "../data/sites.txt"); // tests wil
 
 module.exports.handleRequest = function (req, res) {
   if (req.method === 'POST') {
-    halp.getData(req);
+    url = "";
+    req.on('data',function(data, err){
+      if (err) { throw err; }
+      url += data;
+    });
+    req.on('end', function(){
+      halp.writeData(url);
+      res.writeHead(302, halp.headers);
+      res.end();
+    });
   } else if (req.method === 'GET') {
-    //file lookup
-    console.log('hi');
+    var ext = path.extname(req.url);
+    var folder = "";
+    if (req.url === '/') {
+      folder = './public/';
+      req.url = 'index.html';
+    }else if ( ext === '.html' || ext === '.css' || ext === '.js' || ext === '.jpg'){
+      folder = './public/';
+    } else{
+      folder = "../data/sites/";
+    }
+    halp.serveStaticAssets(res, path.join(__dirname, folder),  req.url);
   }
 };
-

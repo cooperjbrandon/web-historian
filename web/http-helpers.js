@@ -10,20 +10,24 @@ exports.headers = headers = {
   "access-control-max-age": 10, // Seconds.
   'Content-Type': "text/html"
 };
-
 exports.serveStaticAssets = function(res, folder, asset) {
   //Write some code here that helps serve up your static files!
   //(Static files are things like html (yours or arhived from others...), css, or anything that doesn't change often.)
+  var html = '';
+  fs.readFile(folder + asset, 'utf8', function(err, data) {
+    html += data;
+    if (err){
+      res.writeHead(404, headers);
+    } else{
+      res.writeHead(200, headers);
+    }
+    res.end(html);
+  });
 };
-exports.getData = function(req){
-  var url = "";
-  req.on('data', function(data, err) {
-    if (err) { throw err; }
-      url += data;
-  });
-  req.on('end', function(){
-    fs.appendFile(rq.datadir, qs.parse(url).url);
-  });
+
+exports.writeData = function(data){
+  url = qs.parse(data).url;
+  fs.appendFile(rq.datadir, url + '\n');
 };
 
 // As you go through, keep thinking about what helper functions you can put here!

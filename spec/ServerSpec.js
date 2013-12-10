@@ -6,6 +6,7 @@ var res;
 
 // allows us to run tests async
 function async(cb){
+  waits(50);
   runs(cb);
 }
 
