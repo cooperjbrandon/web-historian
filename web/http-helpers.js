@@ -4,12 +4,12 @@ var qs = require('querystring');
 var rq = require('./request-handler');
 var mysql = require('mysql');
 var webRoot = path.join(__dirname, './public/');
-var connection = mysql.createConnection({
+exports.conn = mysql.createConnection({
   host : 'localhost',
   user : 'root'
 });
 
-connection.connect();
+exports.conn.connect();
 
 var contentType = {
   ".css" : "text/css",
@@ -42,14 +42,14 @@ exports.serveStaticAssets = function(res, folder, asset) {
 };
 
 exports.writeData = function(url){
-  connection.query('insert into archive.runList (url) values ('+ connection.escape(url)+ ')');
+  exports.conn.query('insert into archive.runList (url) values ('+ exports.conn.escape(url)+ ')');
   // fs.appendFile(rq.datadir, url + '\n');
 };
 
 // As you go through, keep thinking about what helper functions you can put here!
 exports.findSite = function(url, res, responseCodes) {
   var html = '';
-  connection.query('select * from archive.runList WHERE url = ' + connection.escape(url), function(err,rows){
+  exports.conn.query('select * from archive.runList WHERE url = ' + exports.conn.escape(url), function(err,rows){
     if (err || !rows[0]){
       console.log(rows);
       //if errror querieng then for post case we'll write Data
@@ -57,8 +57,8 @@ exports.findSite = function(url, res, responseCodes) {
       res.writeHead(responseCodes[1], headers);
       exports.serveStaticAssets(res, webRoot, "index.html");
     } else {
-      connection.query('select * from archive.webHistory WHERE runID = ' + rows[0].ID + ' ORDER BY created DESC LIMIT 1', function(err, data) {
-        if (err){
+      exports.conn.query('select * from archive.webHistory WHERE runID = ' + rows[0].ID + ' ORDER BY created DESC LIMIT 1', function(err, data) {
+        if (err || !data[0]){
           res.writeHead(responseCodes[1], headers);
           res.end('this page is in the archive queue');
         } else {
@@ -76,12 +76,9 @@ exports.getFromDB = function(req, res) {
 
 
 exports.getNewSites = function(res){
-  fs.readFile(path.join(__dirname,"../data/") + "sites.txt", function(err, data) {
-    if (err) { throw err ;}
-    data = data + "";
-    var urls = data.split("\n");
+  exports.conn.query('select * from archive.runList ORDER BY ID DESC LIMIT 10', function(err, data){
     res.writeHead(200, headers);
-    res.end(JSON.stringify(urls));
+    res.end(JSON.stringify(data));
   });
 };
 
@@ -92,7 +89,13 @@ exports.handlePost = function(req,res){
     url += data;
   });
   req.on('end', function(){
-    exports.findSite(qs.parse(url).url, res, [200, 302] );
+    url = qs.parse(url).url;
+    if (!url) {
+      res.writeHead(404,headers);
+      res.end();
+      return;
+    }
+    exports.findSite(url, res, [200, 302] );
   });
 };
 exports.getFromFile = function(req,res){
@@ -109,17 +112,5 @@ exports.indexSiteListOr404 = function (req,res){
     res.end("page not found");
   }
 };
-
-// fs.readFile(folder + qs.parse(asset).url, 'utf8', function(err, data) {
-  //   html += data;
-  //   if (err){
-  //     exports.writeData(asset);
-  //     res.writeHead(302, headers);
-  //     exports.serveStaticAssets(res, path.join(__dirname, "./public/"), "index.html");
-  //   } else{
-  //     res.writeHead(200, headers);
-  //     res.end(html);
-    // }
-  // });
 
 

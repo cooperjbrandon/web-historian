@@ -1,7 +1,5 @@
-var path = require('path');
-var dir = path.join(__dirname, "../data/sites.txt"); // tests will need to override this.
 var halp = require('./lib/html-fetcher-helpers.js');
 
-halp.readUrls(dir, halp.downloadUrls);
+halp.readUrls(halp.downloadUrls);
 // eventually, you'll have some code here that uses the tested helpers
 // to actually download the urls you want to download.

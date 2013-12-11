@@ -1,28 +1,33 @@
-var http = require('http-request');
-var fs = require('fs');
-var path = require('path');
-var dir = path.join(__dirname, "../../data/sites/"); // tests will need to override this.
-console.log(dir);
+var http = require('http');
+var conn = require('../../web/http-helpers').conn;
 
-exports.readUrls = function(filePath, cb){
-  fs.readFile(filePath, function(err, data) {
-    if (err) { throw err ;}
-    data = data + "";
-    var urls = data.split("\n");
-    cb(urls);
+exports.readUrls = function(cb){
+  conn.query('select * from archive.runList', function(err, rows) {
+    console.log(err + "readurls");
+    if (err) throw err;
+    cb(rows);
   });
 };
 
-exports.downloadUrls = function(urls){
-  for (var i = 0 ; i < urls.length - 1 ; i++){
-    exports.fetchSite(urls[i]);
+exports.downloadUrls = function(rows){
+  for (var i = 0 ; i < rows.length ; i++){
+    exports.fetchSite(rows[i]);
   }
 };
 
-exports.fetchSite = function(url){
-  console.log('->' + url);
-  http.get(url, function (err, res) {
-    console.log(dir+url);
-    fs.writeFile(dir + url, res.buffer + "",'utf8');
-  });
+exports.fetchSite = function(row){
+  var data = "";
+  http.get({hostname:row.url}, function(res) {
+    res.on("data", function(chunk) {
+      data += chunk;
+    });
+    res.on("end",function(){
+      conn.query('insert into archive.webHistory (runID, data) values (' + row.ID + ',' + conn.escape(data) +')',function(err){
+        if (err) throw err;
+      });
+    });
+  console.log("Got response: " + res.statusCode);
+}).on('error', function(e) {
+  console.log("Got error: " + e.message);
+});
 };

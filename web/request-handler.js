@@ -15,11 +15,6 @@ var router = {
 
 module.exports.handleRequest = function (req, res) {
   var ext = path.extname(req.url);
-  console.log(ext);
-  var route = router[req.method][ext];
-  if (!route){
-    halp.getFromDB(req,res);
-  } else {
-    route(req,res);
-  }
+  var route = router[req.method][ext] || halp.getFromDB;
+  route(req,res);
 };
